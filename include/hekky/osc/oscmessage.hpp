@@ -11,6 +11,7 @@ namespace hekky {
 	namespace osc {
 		struct OscMessage : OscPacket {
 		public:
+			OscMessage();
 			OscMessage(const std::string& address);
 			~OscMessage();
 
@@ -64,6 +65,16 @@ namespace hekky {
 			OscMessage Push(wchar_t* data);
 			OscMessage Push(const wchar_t* data);
 
+			float ReadNextFloat32();
+			double ReadNextFloat64();
+			int ReadNextInt32();
+			long long ReadNextInt64();
+
+			bool ReadNextBoolean();
+
+			std::string ReadNextString();
+			std::wstring ReadNextWString();
+
 			template<typename T>
 			OscMessage Push(T data) {
 				HEKKYOSC_ASSERT(m_readonly == false, "Cannot write to a message packet once sent to the network! Construct a new message instead.");
@@ -75,14 +86,24 @@ namespace hekky {
 				return m_address;
 			}
 
+			inline const char GetFormatCharAt(int index) const {
+				return m_type[index + 1];
+			}
+
 		private:
-			char* GetBytes(int& size);
+			OscMessage(char* data, int size);
+			char* GetBytes(int& size, bool prependSize);
 
 		private:
 			bool m_readonly;
 			std::string m_address;
 			std::string m_type;
 			std::vector<char> m_data;
+
+			int64_t m_readIndex;
+			int64_t m_typeIndex;
+
+			friend class UdpListener;
 		};
 	}
 }

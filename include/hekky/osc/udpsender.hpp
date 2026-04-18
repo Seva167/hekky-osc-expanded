@@ -4,6 +4,7 @@
 #include "hekky/osc/asserts.hpp"
 #include "hekky/osc/oscpacket.hpp"
 #include "hekky/osc/oscmessage.hpp"
+#include "hekky/osc/networksocket.hpp"
 
 #include <string>
 
@@ -22,20 +23,10 @@
 namespace hekky {
 	namespace osc {
 
-		namespace network {
-			/// <summary>
-			/// Which protocol to use. Defaults to UDP.
-			/// </summary>
-			typedef enum {
-				UDP,
-				TCP,
-			} OSC_NetworkProtocol;
-		}
-
 		/// <summary>
 		/// A network device which sends packets to the specified destination using UDP.
 		/// </summary>
-		class UdpSender {
+		class UdpSender : network::OSC_NetworkSocket {
 		public:
 			UdpSender();
 
@@ -44,7 +35,7 @@ namespace hekky {
 			/// </summary>
 			/// <param name="ipAddress">Destination IP Address</param>
 			/// <param name="port">Destination port</param>
-			UdpSender(const std::string& ipAddress, uint32_t portOut, uint32_t portIn, network::OSC_NetworkProtocol protocol = network::OSC_NetworkProtocol::UDP);
+			UdpSender(const std::string& ipAddress, uint32_t portOut, network::OSC_NetworkProtocol protocol = network::OSC_NetworkProtocol::UDP);
 			/// <summary>
 			/// Destroys this UDP socket connection, if it's alive.
 			/// </summary>
@@ -53,7 +44,7 @@ namespace hekky {
 			/// <summary>
 			/// Closes this UDP socket connection. Sending messages after closing this will do nothing.
 			/// </summary>
-			void Close();
+			void Close() override;
 
 			/// <summary>
 			/// Sends an OSC Packet over this UDP socket.
@@ -76,15 +67,9 @@ namespace hekky {
 			bool m_isAlive;
 			std::string m_address;
 			uint32_t m_portOut;
-			uint32_t m_portIn;
-
-			static uint64_t m_openSockets;
 
 #ifdef HEKKYOSC_WINDOWS
-			SOCKET m_nativeSocket;
-
 			sockaddr_in m_destinationAddress;
-			sockaddr_in m_localAddress;
 
 #endif
 		};

@@ -9,13 +9,14 @@ namespace hekky {
 		public:
 
 		private:
-			virtual char* GetBytes(int& size) = 0;
+			virtual char* GetBytes(int& size, bool prependSize) = 0;
 
 			friend class UdpSender;
+			friend class UdpListener;
 		};
 
 		namespace constants {
-			const static uint64_t OSC_MINIMUM_PACKET_BYTES = 8;
+			constexpr uint64_t OSC_MINIMUM_PACKET_BYTES = 8;
 		}
 	}
 }

@@ -4,12 +4,26 @@
 
 namespace hekky {
 	namespace osc {
+		OscMessage::OscMessage()
+			: m_address(), m_type(), m_readonly(true), m_readIndex(0), m_typeIndex(0)
+		{}
+
 		OscMessage::OscMessage(const std::string& address)
-			: m_address(address), m_type(","), m_readonly(false)
+			: m_address(address), m_type(","), m_readonly(false), m_readIndex(0), m_typeIndex(1)
 		{
 			HEKKYOSC_ASSERT(address.length() > 1, "The address is invalid!");
 			HEKKYOSC_ASSERT(address[0] == '/', "The address is invalid! It should start with a '/'!");
 			m_data.reserve(constants::OSC_MINIMUM_PACKET_BYTES);
+		}
+
+		OscMessage::OscMessage(char* data, int size)
+			: m_readonly(true), m_typeIndex(1)
+		{
+			m_data = std::vector<char>(data, data + size);
+			m_address = std::string(data);
+			m_readIndex = utils::GetAlignedStringLength(m_address);
+			m_type = std::string(data + m_readIndex);
+			m_readIndex += utils::GetAlignedStringLength(m_type);
 		}
 
 		OscMessage::~OscMessage() {
@@ -243,9 +257,96 @@ namespace hekky {
 			return PushBlob(data, size);
 		}
 
+		float OscMessage::ReadNextFloat32() {
+			HEKKYOSC_ASSERT(m_type[m_typeIndex] == 'f' || m_type[m_typeIndex] == 'I', "Tried to read incorrect type!");
+
+			if (m_type[m_typeIndex] == 'f') {
+				float out = *reinterpret_cast<float*>(m_data.data() + m_readIndex);
+				if (utils::IsLittleEndian())
+					out = utils::SwapFloat32(out);
+				m_readIndex += 4;
+				m_typeIndex++;
+
+				return out;
+			}
+			else {
+				m_typeIndex++;
+				return std::numeric_limits<float>().infinity();
+			}
+		}
+
+		double OscMessage::ReadNextFloat64() {
+			HEKKYOSC_ASSERT(m_type[m_typeIndex] == 'd' || m_type[m_typeIndex] == 'I', "Tried to read incorrect type!");
+
+			if (m_type[m_typeIndex] == 'd') {
+				double out = *reinterpret_cast<double*>(m_data.data() + m_readIndex);
+				if (utils::IsLittleEndian())
+					out = utils::SwapFloat64(out);
+				m_readIndex += 8;
+				m_typeIndex++;
+
+				return out;
+			}
+			else {
+				m_typeIndex++;
+				return std::numeric_limits<double>().infinity();
+			}
+		}
+
+		int OscMessage::ReadNextInt32() {
+			HEKKYOSC_ASSERT(m_type[m_typeIndex] == 'i', "Tried to read incorrect type!");
+
+			int out = *reinterpret_cast<int*>(m_data.data() + m_readIndex);
+			if (utils::IsLittleEndian())
+				out = utils::SwapInt32(out);
+			m_readIndex += 4;
+			m_typeIndex++;
+
+			return out;
+		}
+
+		long long OscMessage::ReadNextInt64() {
+			HEKKYOSC_ASSERT(m_type[m_typeIndex] == 'h', "Tried to read incorrect type!");
+
+			long long out = *reinterpret_cast<long long*>(m_data.data() + m_readIndex);
+			if (utils::IsLittleEndian())
+				out = utils::SwapInt64(out);
+			m_readIndex += 8;
+			m_typeIndex++;
+
+			return out;
+		}
+
+		bool OscMessage::ReadNextBoolean() {
+			HEKKYOSC_ASSERT(m_type[m_typeIndex] == 'T' || m_type[m_typeIndex] == 'F', "Tried to read incorrect type!");
+
+			return m_type[m_typeIndex++] == 'T';
+		}
+
+		std::string OscMessage::ReadNextString() {
+			HEKKYOSC_ASSERT(m_type[m_typeIndex] == 's', "Tried to read incorrect type!");
+
+			auto out = std::string(m_data.data() + m_readIndex);
+			m_readIndex += utils::GetAlignedStringLength(out);
+			m_typeIndex++;
+
+			return out;
+		}
+
+		std::wstring OscMessage::ReadNextWString() {
+			HEKKYOSC_ASSERT(m_type[m_typeIndex] == 's', "Tried to read incorrect type!");
+
+			auto out = std::wstring(reinterpret_cast<wchar_t*>(m_data.data() + m_readIndex));
+			m_readIndex += utils::GetAlignedStringLength(out);
+			m_typeIndex++;
+
+			return out;
+		}
+
 		// Internal function
-		char* OscMessage::GetBytes(int& size) {
+		char* OscMessage::GetBytes(int& size, bool prependSize) {
 			std::vector<char> headerData;
+			headerData.reserve(m_address.size() + m_type.size() + m_data.size());
 
 			// Append address
 			std::copy(m_address.begin(), m_address.end(), std::back_inserter(headerData));
@@ -261,6 +362,21 @@ namespace hekky {
 			// Lock this packet
 			m_readonly = true;
 			size = static_cast<int>(m_data.size());
+
+			if (prependSize)
+			{
+				union {
+					int i;
+					char c[4];
+				} primitiveLiteral = { size };
+
+				if (utils::IsLittleEndian()) {
+					primitiveLiteral.i = utils::SwapInt32(size);
+				}
+
+				m_data.insert(m_data.begin(), primitiveLiteral.c, primitiveLiteral.c + 4);
+			}
+
 			return m_data.data();
 		}
 	}

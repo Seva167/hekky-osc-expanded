@@ -147,18 +147,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+	<ClCompile Include="networksocket.cpp" />
     <ClCompile Include="oscmessage.cpp" />
     <ClCompile Include="udpsender.cpp" />
+	<ClCompile Include="udplistener.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\hekky-osc.hpp" />
     <ClInclude Include="..\include\hekky\osc\asserts.hpp" />
     <ClInclude Include="..\include\hekky\osc\debug.hpp" />
+	<ClInclude Include="..\include\hekky\osc\networksocket.hpp" />
     <ClInclude Include="..\include\hekky\osc\oscmessage.hpp" />
     <ClInclude Include="..\include\hekky\osc\oscpacket.hpp" />
     <ClInclude Include="..\include\hekky\osc\platform.hpp" />
     <ClInclude Include="..\include\hekky\osc\udpsender.hpp" />
+	<ClInclude Include="..\include\hekky\osc\udplistener.hpp" />
     <ClInclude Include="..\include\hekky\osc\utils.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

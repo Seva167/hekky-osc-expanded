@@ -21,7 +21,13 @@
     <ClCompile Include="udpsender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="udplistener.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="networksocket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,7 +53,13 @@
     <ClInclude Include="..\include\hekky\osc\udpsender.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\hekky\osc\udplistener.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\hekky\osc\utils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\hekky\osc\networksocket.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
