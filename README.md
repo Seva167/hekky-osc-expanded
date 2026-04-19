@@ -91,6 +91,7 @@ int main()
         for (int i = 0; message.GetFormatCharAt(i) != '\0'; i++) {
             switch (message.GetFormatCharAt(i))
             {
+			case 'I':
             case 'f':
                 std::cout << message.ReadNextFloat32() << ' ';
                 break;
@@ -126,6 +127,7 @@ void receiveCallback(hekky::osc::OscMessage& message)
     for (int i = 0; message.GetFormatCharAt(i) != '\0'; i++) {
         switch (message.GetFormatCharAt(i))
         {
+		case 'I':
         case 'f':
             std::cout << message.ReadNextFloat32() << ' ';
             break;
