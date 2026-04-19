@@ -1,6 +1,6 @@
-# Hekky OSC
+# Hekky OSC Expanded
 
-An OSC Library for C++, initially based on [CoreOSC](https://github.com/PaciStardust/CoreOSC-UTF8).
+A fork of [hekky-osc](https://github.com/hyblocker/hekky-osc) library for C++ primarily with support for message receiving and other small enhancements.
 
 ### Motivation
 
@@ -82,8 +82,8 @@ This library aims to provide a simple and easy to use API for using OSC. It aims
 | Feature                                         | Supported |
 | ----------------------------------------------- | --------- |
 | Sending OSC messages                            | ✅         |
-| Receiving OSC messages                          | ❌         |
-| Sending primitive data types (int, float, etc.) | ✅         |
+| Receiving OSC messages                          | ✅*         |
+| Sending and receiving primitive data types (int, float, etc.) | ✅|
 | 32-bit RGBA color                               | ❌         |
 | OSC Timetag                                     | ❌         |
 | MIDI                                            | ❌         |
@@ -91,3 +91,5 @@ This library aims to provide a simple and easy to use API for using OSC. It aims
 | Arrays                                          | ❌         |
 | Bundles                                         | ❌         |
 | ASCII Character                                 | ❌         |
+
+*UDP protocol only
