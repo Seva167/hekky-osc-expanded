@@ -22,6 +22,7 @@ This project is licensed under the MIT license. CoreOSC is also licensed under t
 
 # Example
 
+### Sending messages
 ```cpp
 #include <iostream>
 
@@ -64,6 +65,94 @@ int main()
     // udpSender.Close();
 
     std::cout << "Done!\n";
+}
+```
+### Receiving messages synchronously
+```cpp
+#include <iostream>
+
+#include "hekky-osc.hpp"
+
+int main()
+{
+	auto udpListener = hekky::osc::UdpListener("127.0.0.1", 9001, 100, nullptr);
+	
+	while (true) {
+		hekky::osc::OscMessage message;
+		int statusCode = udpListener.Receive(&message);
+		
+		// Check if receiver timed out or other error occured
+		if (statusCode == -1)
+			continue;
+		if (statusCode != 0)
+			break;
+		
+		std::cout << "Osc message: " << message.GetAddress() << ' ';
+        for (int i = 0; message.GetFormatCharAt(i) != '\0'; i++) {
+            switch (message.GetFormatCharAt(i))
+            {
+            case 'f':
+                std::cout << message.ReadNextFloat32() << ' ';
+                break;
+            case 'i':
+                std::cout << message.ReadNextInt32() << ' ';
+                break;
+            case 's':
+                std::cout << message.ReadNextString() << ' ';
+                break;
+            case 'T':
+                std::cout << message.ReadNextBoolean() << ' ';
+                break;
+            case 'F':
+                std::cout << message.ReadNextBoolean() << ' ';
+                break;
+            default:
+                continue;
+            }
+        }
+        std::cout << std::endl;
+	}
+}
+```
+### Receiving messages asynchronously
+```cpp
+#include <iostream>
+
+#include "hekky-osc.hpp"
+
+void receiveCallback(hekky::osc::OscMessage& message)
+{
+	std::cout << "Osc message: " << message.GetAddress() << ' ';
+    for (int i = 0; message.GetFormatCharAt(i) != '\0'; i++) {
+        switch (message.GetFormatCharAt(i))
+        {
+        case 'f':
+            std::cout << message.ReadNextFloat32() << ' ';
+            break;
+        case 'i':
+            std::cout << message.ReadNextInt32() << ' ';
+            break;
+        case 's':
+            std::cout << message.ReadNextString() << ' ';
+            break;
+        case 'T':
+            std::cout << message.ReadNextBoolean() << ' ';
+            break;
+        case 'F':
+            std::cout << message.ReadNextBoolean() << ' ';
+            break;
+        default:
+            continue;
+        }
+    }
+    std::cout << std::endl;
+}
+
+int main()
+{
+	auto udpListener = hekky::osc::UdpListener("127.0.0.1", 9001, 100, receiveCallback);
+	
+	std::getchar();
 }
 ```
 
